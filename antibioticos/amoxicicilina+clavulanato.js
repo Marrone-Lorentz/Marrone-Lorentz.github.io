@@ -1,5 +1,5 @@
 window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
-    nome: "Ceftriaxona",
+    nome: "Amoxicicilina + Clavulanato",
     avaliar: function(peso, clcr, dialise) {
         // Estilização padrão para deixar as tabelas elegantes e responsivas
         const estiloTabela = "width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 14px; background-color: #fff;";
