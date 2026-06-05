@@ -2,12 +2,12 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
     nome: "Amoxicicilina + Clavulanato",
     avaliar: function(peso, clcr, dialise) {
         // Estilização padrão para deixar as tabelas elegantes e responsivas
-        const estiloTabela = "width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 14px; background-color: #fff;";
+        const estiloTabela = "width: 100%; border-collapse: collapse; margin-bottom: 0px; font-size: 14px; background-color: #fff;";
         const estiloHeader = "background-color: #4a5568; color: white; padding: 10px; text-align: left; border: 1px solid #cbd5e0; font-weight: 600;";
         const estiloCelula = "padding: 10px; border: 1px solid #cbd5e0; color: #2d3748;";
-        const estiloTitulo = "margin: 4px 0 2px 0; color: #2c3e50; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 3px;";
+        const estiloTitulo = "margin: 0px 0 0px 0; color: #2c3e50; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 3px;";
         let dose40 = peso * 30;
-        let diluicao = dose40 * 20;
+        let diluicao = dose40 / 12;
 
         return `
             <div class="div-tabela">
