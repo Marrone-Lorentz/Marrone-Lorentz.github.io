@@ -1,4 +1,4 @@
-window.bancoDeAntibioticos["ceftriaxona"] = {
+window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
     nome: "Ceftriaxona",
     avaliar: function(peso, clcr, dialise) {
         // Estilização padrão para deixar as tabelas elegantes e responsivas
