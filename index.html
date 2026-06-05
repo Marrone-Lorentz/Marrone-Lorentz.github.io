@@ -118,7 +118,7 @@
     // Sempre que criar um arquivo .js novo dentro da pasta 'antibioticos',
     // adicione o nome dele exato (sem o .js) dentro desta lista abaixo:
     // =================================================================
-    const listaAntibioticos = ["meropenem", "vancomicina"];
+    const listaAntibioticos = ["ceftriaxona", "meropenem", "vancomicina"];
 
     // Elementos da Interface
     const campos = {
@@ -234,7 +234,7 @@
             let drogaObj = window.bancoDeAntibioticos[drogaSelecionada];
             if (drogaObj && typeof drogaObj.avaliar === 'function') {
                 let recomendacao = drogaObj.avaliar(p, clearanceFinal, isDialise);
-                campos.textoRecomendacao.innerText = recomendacao;
+                campos.textoRecomendacao.innerHTML = recomendacao;
                 campos.boxResultado.style.display = "block";
             }
         } else {
