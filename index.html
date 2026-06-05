@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajuste de Dose de Antibióticos</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        h2 { text-align: center; color: #2c3e50; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #4a5568; }
+        input[type="number"], input[type="text"], select {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e0;
+            border-radius: 5px; box-sizing: border-box; font-size: 16px;
+        }
+        input[readonly] { background-color: #edf2f7; cursor: not-allowed; }
+        .radio-group {
+            display: flex; flex-direction: column; gap: 10px;
+            background: #f8fafc; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+        .radio-item { display: flex; align-items: center; gap: 8px; }
+        .radio-item input { width: auto; transform: scale(1.2); }
+        .hidden { display: none; }
+        #resultado-box {
+            margin-top: 20px; padding: 15px; background-color: #ebf8ff;
+            border-left: 5px solid #3182ce; border-radius: 4px; display: none;
+        }
+        .recomendacao-texto { font-size: 16px; line-height: 1.5; white-space: pre-wrap;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Ajuste de Antimicrobianos</h2>
+
+    <div class="form-group">
+        <label>Idade (anos):</label>
+        <input type="number" id="idade" step="1" min="18" placeholder="Ex: 65">
+    </div>
+
+    <div class="form-group">
+        <label>Peso (kg):</label>
+        <input type="number" id="peso" step="0.1" min="30" placeholder="Ex: 70.5">
+    </div>
+
+    <div class="form-group">
+        <label>Sexo:</label>
+        <select id="sexo">
+            <option value="">Selecione...</option>
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Creatinina (mg/dL):</label>
+        <input type="number" id="creatinina" step="0.01" min="0.1" placeholder="Ex: 1.25">
+    </div>
+
+    <label>Função Renal:</label>
+    <div class="radio-group">
+        <div class="radio-item">
+            <input type="radio" id="opt_auto" name="tipo_clearance" value="auto" checked>
+            <label for="opt_auto">Clearance Automático (CKD-EPI 2021)</label>
+        </div>
+        <div id="div_auto" class="form-group" style="margin-left: 25px; margin-bottom: 0;">
+            <input type="text" id="clearance_auto" readonly placeholder="Aguardando dados (Idade, Sexo, Cr)...">
+        </div>
+
+        <div class="radio-item">
+            <input type="radio" id="opt_manual" name="tipo_clearance" value="manual">
+            <label for="opt_manual">Clearance Manual</label>
+        </div>
+        <div id="div_manual" class="form-group hidden" style="margin-left: 25px; margin-bottom: 0;">
+            <input type="number" id="clearance_manual" step="0.1" placeholder="Digite o ClCr (mL/min)">
+        </div>
+
+        <div class="radio-item">
+            <input type="radio" id="opt_dialise" name="tipo_clearance" value="dialise">
+            <label for="opt_dialise">Paciente Dialítico</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Antibiótico:</label>
+        <select id="antibiotico">
+            <option value="">Selecione a droga...</option>
+            </select>
+    </div>
+
+    <div id="resultado-box">
+        <h4 style="margin-top: 0; color: #2b6cb0;">Recomendação:</h4>
+        <div id="texto_recomendacao" class="recomendacao-texto"></div>
+    </div>
+
+</div>
+
+<script>
+    // ==========================================
+    // 1. BANCO DE DADOS DOS ANTIBIÓTICOS
+    // ==========================================
+    // Você pode adicionar novos blocos aqui facilmente.
+    const bancoDeAntibioticos = {
+        "meropenem": {
+            nome: "Meropenem",
+            // A função avaliar() recebe o peso, o clearance final e se faz diálise
+            avaliar: function(peso, clcr, dialise) {
+                if (dialise) {
+                    return "Dose: 500 mg a cada 24h.\nAdministrar a dose após a sessão nos dias de hemodiálise.";
+                }
+                if (clcr >= 50) {
+                    return "Dose: 1g a 2g a cada 8h.\nDiluição: 100 mL SF 0,9%.\nTempo de Infusão: 3 horas (infusão estendida).";
+                }
+                if (clcr >= 26 && clcr < 50) {
+                    return "Dose: 1g a cada 12h.\nDiluição: 100 mL SF 0,9%.\nTempo de Infusão: 3 horas.";
+                }
+                if (clcr >= 10 && clcr <= 25) {
+                    return "Dose: 500 mg a cada 12h.";
+                }
+                if (clcr < 10) {
+                    return "Dose: 500 mg a cada 24h.";
+                }
+                return "Dados de função renal incompletos ou fora do padrão.";
+            }
+        },
+        "vancomicina": {
+            nome: "Vancomicina",
+            avaliar: function(peso, clcr, dialise) {
+                // Exemplo usando o peso no cálculo (ex: 15mg/kg)
+                let doseCalculada = Math.round((peso * 15) / 250) * 250; // Arredonda para múltiplos de 250mg
+                
+                if (dialise) {
+                    return `Dose de ataque: ${doseCalculada} mg (15 a 20 mg/kg).\nManutenção: Guiar por vancocinemia ou 500mg após cada sessão.`;
+                }
+                if (clcr >= 50) {
+                    return `Dose: ${doseCalculada} mg a cada 12h.\nDiluição: Mínimo de 250mL de SF 0,9%.\nTempo de infusão: Correr em no mínimo 1 a 2 horas (evitar Síndrome do Homem Vermelho).`;
+                }
+                if (clcr >= 20 && clcr < 50) {
+                    return `Dose: ${doseCalculada} mg a cada 24h.`;
+                }
+                if (clcr < 20) {
+                    return `Dose: ${doseCalculada} mg em dose única, depois guiar por nível sérico.`;
+                }
+                return "Dados de função renal incompletos.";
+            }
+        }
+        // Para adicionar mais, coloque uma vírgula no fechamento da chave anterior e siga o padrão.
+    };
+
+    // ==========================================
+    // 2. LÓGICA DO SISTEMA
+    // ==========================================
+    const campos = {
+        idade: document.getElementById('idade'),
+        peso: document.getElementById('peso'),
+        sexo: document.getElementById('sexo'),
+        creatinina: document.getElementById('creatinina'),
+        radiosClearance: document.getElementsByName('tipo_clearance'),
+        clearanceAuto: document.getElementById('clearance_auto'),
+        clearanceManual: document.getElementById('clearance_manual'),
+        divAuto: document.getElementById('div_auto'),
+        divManual: document.getElementById('div_manual'),
+        selectAntibiotico: document.getElementById('antibiotico'),
+        boxResultado: document.getElementById('resultado-box'),
+        textoRecomendacao: document.getElementById('texto_recomendacao')
+    };
+
+    // Preenche o menu suspenso de antibióticos com os dados do banco
+    Object.keys(bancoDeAntibioticos).forEach(chave => {
+        let option = document.createElement("option");
+        option.value = chave;
+        option.text = bancoDeAntibioticos[chave].nome;
+        campos.selectAntibiotico.add(option);
+    });
+
+    // Fórmula CKD-EPI 2021 (Creatinina, Sem Raça)
+    function calcularCKDEPI(idade, sexo, cr) {
+        let kappa = sexo === 'F' ? 0.7 : 0.9;
+        let alpha = sexo === 'F' ? -0.241 : -0.302;
+        let min = Math.min(cr / kappa, 1);
+        let max = Math.max(cr / kappa, 1);
+        let multiSexo = sexo === 'F' ? 1.012 : 1;
+
+        let egfr = 142 * Math.pow(min, alpha) * Math.pow(max, -1.200) * Math.pow(0.9938, idade) * multiSexo;
+        return egfr.toFixed(1);
+    }
+
+    // Atualiza a tela inteira sempre que algo é digitado/clicado
+    function atualizarInterface() {
+        // 1. Controle das áreas visíveis com base na escolha (Auto, Manual, Diálise)
+        let tipoCl = document.querySelector('input[name="tipo_clearance"]:checked').value;
+        
+        campos.divAuto.classList.toggle('hidden', tipoCl !== 'auto');
+        campos.divManual.classList.toggle('hidden', tipoCl !== 'manual');
+
+        // 2. Tenta calcular o automático se tiver dados
+        let i = parseFloat(campos.idade.value);
+        let s = campos.sexo.value;
+        let cr = parseFloat(campos.creatinina.value);
+        let valorClAuto = null;
+
+        if (!isNaN(i) && s !== "" && !isNaN(cr)) {
+            valorClAuto = calcularCKDEPI(i, s, cr);
+            campos.clearanceAuto.value = `${valorClAuto} mL/min/1.73m²`;
+        } else {
+            campos.clearanceAuto.value = "";
+        }
+
+        // 3. Verifica qual Clearance usar para o antibiótico
+        let clearanceFinal = null;
+        let isDialise = false;
+
+        if (tipoCl === 'auto' && valorClAuto !== null) {
+            clearanceFinal = parseFloat(valorClAuto);
+        } else if (tipoCl === 'manual' && !isNaN(parseFloat(campos.clearanceManual.value))) {
+            clearanceFinal = parseFloat(campos.clearanceManual.value);
+        } else if (tipoCl === 'dialise') {
+            isDialise = true;
+            clearanceFinal = 0; // Apenas para não falhar na validação numérica
+        }
+
+        // 4. Calcula e exibe o antibiótico
+        let p = parseFloat(campos.peso.value);
+        let drogaSelecionada = campos.selectAntibiotico.value;
+
+        if (drogaSelecionada && !isNaN(p) && (clearanceFinal !== null || isDialise)) {
+            let drogaObj = bancoDeAntibioticos[drogaSelecionada];
+            let recomendacao = drogaObj.avaliar(p, clearanceFinal, isDialise);
+            
+            campos.textoRecomendacao.innerText = recomendacao;
+            campos.boxResultado.style.display = "block";
+        } else {
+            campos.boxResultado.style.display = "none";
+        }
+    }
+
+    // Adiciona escutadores de eventos para recalcular ao vivo
+    ['idade', 'peso', 'sexo', 'creatinina', 'clearance_manual', 'antibiotico'].forEach(id => {
+        document.getElementById(id).addEventListener('input', atualizarInterface);
+        document.getElementById(id).addEventListener('change', atualizarInterface);
+    });
+
+    campos.radiosClearance.forEach(radio => {
+        radio.addEventListener('change', atualizarInterface);
+    });
+
+</script>
+</body>
+</html>
