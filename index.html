@@ -39,7 +39,7 @@
             margin-top: 20px; padding: 15px; background-color: #ebf8ff;
             border-left: 5px solid #3182ce; border-radius: 4px; display: none;
         }
-        .recomendacao-texto { font-size: 16px; line-height: 1.5; white-space: pre-wrap;}
+        .recomendacao-texto { font-size: 16px; line-height: 1.5; white-space: pre-wrap; overflow-x: auto;}
     </style>
 </head>
 <body>
@@ -118,7 +118,7 @@
     // Sempre que criar um arquivo .js novo dentro da pasta 'antibioticos',
     // adicione o nome dele exato (sem o .js) dentro desta lista abaixo:
     // =================================================================
-    const listaAntibioticos = ["ceftriaxona", "meropenem", "vancomicina"];
+    const listaAntibioticos = ["meropenem", "vancomicina", "ceftriaxona"];
 
     // Elementos da Interface
     const campos = {
@@ -142,105 +142,4 @@
         configurarEventos();
     } else {
         listaAntibioticos.forEach(nomeArquivo => {
-            const script = document.createElement('script');
-            script.src = `antibioticos/${nomeArquivo}.js`;
-            script.onload = () => {
-                scriptsCarregados++;
-                if (scriptsCarregados === listaAntibioticos.length) {
-                    inicializarDropdown();
-                }
-            };
-            script.onerror = () => {
-                console.error(`Erro crítico ao carregar: antibioticos/${nomeArquivo}.js`);
-                scriptsCarregados++;
-                if (scriptsCarregados === listaAntibioticos.length) {
-                    inicializarDropdown();
-                }
-            };
-            document.head.appendChild(script);
-        });
-    }
-
-    // Preenche a lista suspensa (select) após carregar os arquivos externos
-    function inicializarDropdown() {
-        Object.keys(window.bancoDeAntibioticos).forEach(chave => {
-            let option = document.createElement("option");
-            option.value = chave;
-            option.text = window.bancoDeAntibioticos[chave].nome;
-            campos.selectAntibiotico.add(option);
-        });
-        configurarEventos();
-    }
-
-    // Vincula as funções de cálculo aos eventos de digitação
-    function configurarEventos() {
-        ['idade', 'peso', 'sexo', 'creatinina', 'clearance_manual', 'antibiotico'].forEach(id => {
-            document.getElementById(id).addEventListener('input', atualizarInterface);
-            document.getElementById(id).addEventListener('change', atualizarInterface);
-        });
-
-        campos.radiosClearance.forEach(radio => {
-            radio.addEventListener('change', atualizarInterface);
-        });
-    }
-
-    // Fórmula CKD-EPI 2021
-    function calcularCKDEPI(idade, sexo, cr) {
-        let kappa = sexo === 'F' ? 0.7 : 0.9;
-        let alpha = sexo === 'F' ? -0.241 : -0.302;
-        let min = Math.min(cr / kappa, 1);
-        let max = Math.max(cr / kappa, 1);
-        let multiSexo = sexo === 'F' ? 1.012 : 1;
-
-        let egfr = 142 * Math.pow(min, alpha) * Math.pow(max, -1.200) * Math.pow(0.9938, idade) * multiSexo;
-        return egfr.toFixed(1);
-    }
-
-    // Gerenciador central de cálculos e atualizações visuais
-    function atualizarInterface() {
-        let tipoCl = document.querySelector('input[name="tipo_clearance"]:checked').value;
-        
-        campos.divAuto.classList.toggle('hidden', tipoCl !== 'auto');
-        campos.divManual.classList.toggle('hidden', tipoCl !== 'manual');
-
-        let i = parseFloat(campos.idade.value);
-        let s = campos.sexo.value;
-        let cr = parseFloat(campos.creatinina.value);
-        let valorClAuto = null;
-
-        if (!isNaN(i) && s !== "" && !isNaN(cr)) {
-            valorClAuto = calcularCKDEPI(i, s, cr);
-            campos.clearanceAuto.value = `${valorClAuto} mL/min/1.73m²`;
-        } else {
-            campos.clearanceAuto.value = "";
-        }
-
-        let clearanceFinal = null;
-        let isDialise = false;
-
-        if (tipoCl === 'auto' && valorClAuto !== null) {
-            clearanceFinal = parseFloat(valorClAuto);
-        } else if (tipoCl === 'manual' && !isNaN(parseFloat(campos.clearanceManual.value))) {
-            clearanceFinal = parseFloat(campos.clearanceManual.value);
-        } else if (tipoCl === 'dialise') {
-            isDialise = true;
-            clearanceFinal = 0;
-        }
-
-        let p = parseFloat(campos.peso.value);
-        let drogaSelecionada = campos.selectAntibiotico.value;
-
-        if (drogaSelecionada && !isNaN(p) && (clearanceFinal !== null || isDialise)) {
-            let drogaObj = window.bancoDeAntibioticos[drogaSelecionada];
-            if (drogaObj && typeof drogaObj.avaliar === 'function') {
-                let recomendacao = drogaObj.avaliar(p, clearanceFinal, isDialise);
-                campos.textoRecomendacao.innerHTML = recomendacao;
-                campos.boxResultado.style.display = "block";
-            }
-        } else {
-            campos.boxResultado.style.display = "none";
-        }
-    }
-</script>
-</body>
-</html>
+            const script = document.
