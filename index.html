@@ -99,7 +99,7 @@
         <label>Antibiótico:</label>
         <select id="antibiotico">
             <option value="">Selecione a droga...</option>
-            </select>
+        </select>
     </div>
 
     <div id="resultado-box">
@@ -110,60 +110,17 @@
 </div>
 
 <script>
-    // ==========================================
-    // 1. BANCO DE DADOS DOS ANTIBIÓTICOS
-    // ==========================================
-    // Você pode adicionar novos blocos aqui facilmente.
-    const bancoDeAntibioticos = {
-        "meropenem": {
-            nome: "Meropenem",
-            // A função avaliar() recebe o peso, o clearance final e se faz diálise
-            avaliar: function(peso, clcr, dialise) {
-                if (dialise) {
-                    return "Dose: 500 mg a cada 24h.\nAdministrar a dose após a sessão nos dias de hemodiálise.";
-                }
-                if (clcr >= 50) {
-                    return "Dose: 1g a 2g a cada 8h.\nDiluição: 100 mL SF 0,9%.\nTempo de Infusão: 3 horas (infusão estendida).";
-                }
-                if (clcr >= 26 && clcr < 50) {
-                    return "Dose: 1g a cada 12h.\nDiluição: 100 mL SF 0,9%.\nTempo de Infusão: 3 horas.";
-                }
-                if (clcr >= 10 && clcr <= 25) {
-                    return "Dose: 500 mg a cada 12h.";
-                }
-                if (clcr < 10) {
-                    return "Dose: 500 mg a cada 24h.";
-                }
-                return "Dados de função renal incompletos ou fora do padrão.";
-            }
-        },
-        "vancomicina": {
-            nome: "Vancomicina",
-            avaliar: function(peso, clcr, dialise) {
-                // Exemplo usando o peso no cálculo (ex: 15mg/kg)
-                let doseCalculada = Math.round((peso * 15) / 250) * 250; // Arredonda para múltiplos de 250mg
-                
-                if (dialise) {
-                    return `Dose de ataque: ${doseCalculada} mg (15 a 20 mg/kg).\nManutenção: Guiar por vancocinemia ou 500mg após cada sessão.`;
-                }
-                if (clcr >= 50) {
-                    return `Dose: ${doseCalculada} mg a cada 12h.\nDiluição: Mínimo de 250mL de SF 0,9%.\nTempo de infusão: Correr em no mínimo 1 a 2 horas (evitar Síndrome do Homem Vermelho).`;
-                }
-                if (clcr >= 20 && clcr < 50) {
-                    return `Dose: ${doseCalculada} mg a cada 24h.`;
-                }
-                if (clcr < 20) {
-                    return `Dose: ${doseCalculada} mg em dose única, depois guiar por nível sérico.`;
-                }
-                return "Dados de função renal incompletos.";
-            }
-        }
-        // Para adicionar mais, coloque uma vírgula no fechamento da chave anterior e siga o padrão.
-    };
+    // Inicializa o objeto global que guardará as regras de cada droga
+    window.bancoDeAntibioticos = {};
 
-    // ==========================================
-    // 2. LÓGICA DO SISTEMA
-    // ==========================================
+    // =================================================================
+    // LISTA DE CONFIGURAÇÃO DOS ARQUIVOS
+    // Sempre que criar um arquivo .js novo dentro da pasta 'antibioticos',
+    // adicione o nome dele exato (sem o .js) dentro desta lista abaixo:
+    // =================================================================
+    const listaAntibioticos = ["meropenem", "vancomicina"];
+
+    // Elementos da Interface
     const campos = {
         idade: document.getElementById('idade'),
         peso: document.getElementById('peso'),
@@ -179,15 +136,55 @@
         textoRecomendacao: document.getElementById('texto_recomendacao')
     };
 
-    // Preenche o menu suspenso de antibióticos com os dados do banco
-    Object.keys(bancoDeAntibioticos).forEach(chave => {
-        let option = document.createElement("option");
-        option.value = chave;
-        option.text = bancoDeAntibioticos[chave].nome;
-        campos.selectAntibiotico.add(option);
-    });
+    // Carregador Automático dos Arquivos de Antibióticos
+    let scriptsCarregados = 0;
+    if (listaAntibioticos.length === 0) {
+        configurarEventos();
+    } else {
+        listaAntibioticos.forEach(nomeArquivo => {
+            const script = document.createElement('script');
+            script.src = `antibioticos/${nomeArquivo}.js`;
+            script.onload = () => {
+                scriptsCarregados++;
+                if (scriptsCarregados === listaAntibioticos.length) {
+                    inicializarDropdown();
+                }
+            };
+            script.onerror = () => {
+                console.error(`Erro crítico ao carregar: antibioticos/${nomeArquivo}.js`);
+                scriptsCarregados++;
+                if (scriptsCarregados === listaAntibioticos.length) {
+                    inicializarDropdown();
+                }
+            };
+            document.head.appendChild(script);
+        });
+    }
 
-    // Fórmula CKD-EPI 2021 (Creatinina, Sem Raça)
+    // Preenche a lista suspensa (select) após carregar os arquivos externos
+    function inicializarDropdown() {
+        Object.keys(window.bancoDeAntibioticos).forEach(chave => {
+            let option = document.createElement("option");
+            option.value = chave;
+            option.text = window.bancoDeAntibioticos[chave].nome;
+            campos.selectAntibiotico.add(option);
+        });
+        configurarEventos();
+    }
+
+    // Vincula as funções de cálculo aos eventos de digitação
+    function configurarEventos() {
+        ['idade', 'peso', 'sexo', 'creatinina', 'clearance_manual', 'antibiotico'].forEach(id => {
+            document.getElementById(id).addEventListener('input', atualizarInterface);
+            document.getElementById(id).addEventListener('change', atualizarInterface);
+        });
+
+        campos.radiosClearance.forEach(radio => {
+            radio.addEventListener('change', atualizarInterface);
+        });
+    }
+
+    // Fórmula CKD-EPI 2021
     function calcularCKDEPI(idade, sexo, cr) {
         let kappa = sexo === 'F' ? 0.7 : 0.9;
         let alpha = sexo === 'F' ? -0.241 : -0.302;
@@ -199,15 +196,13 @@
         return egfr.toFixed(1);
     }
 
-    // Atualiza a tela inteira sempre que algo é digitado/clicado
+    // Gerenciador central de cálculos e atualizações visuais
     function atualizarInterface() {
-        // 1. Controle das áreas visíveis com base na escolha (Auto, Manual, Diálise)
         let tipoCl = document.querySelector('input[name="tipo_clearance"]:checked').value;
         
         campos.divAuto.classList.toggle('hidden', tipoCl !== 'auto');
         campos.divManual.classList.toggle('hidden', tipoCl !== 'manual');
 
-        // 2. Tenta calcular o automático se tiver dados
         let i = parseFloat(campos.idade.value);
         let s = campos.sexo.value;
         let cr = parseFloat(campos.creatinina.value);
@@ -220,7 +215,6 @@
             campos.clearanceAuto.value = "";
         }
 
-        // 3. Verifica qual Clearance usar para o antibiótico
         let clearanceFinal = null;
         let isDialise = false;
 
@@ -230,34 +224,23 @@
             clearanceFinal = parseFloat(campos.clearanceManual.value);
         } else if (tipoCl === 'dialise') {
             isDialise = true;
-            clearanceFinal = 0; // Apenas para não falhar na validação numérica
+            clearanceFinal = 0;
         }
 
-        // 4. Calcula e exibe o antibiótico
         let p = parseFloat(campos.peso.value);
         let drogaSelecionada = campos.selectAntibiotico.value;
 
         if (drogaSelecionada && !isNaN(p) && (clearanceFinal !== null || isDialise)) {
-            let drogaObj = bancoDeAntibioticos[drogaSelecionada];
-            let recomendacao = drogaObj.avaliar(p, clearanceFinal, isDialise);
-            
-            campos.textoRecomendacao.innerText = recomendacao;
-            campos.boxResultado.style.display = "block";
+            let drogaObj = window.bancoDeAntibioticos[drogaSelecionada];
+            if (drogaObj && typeof drogaObj.avaliar === 'function') {
+                let recomendacao = drogaObj.avaliar(p, clearanceFinal, isDialise);
+                campos.textoRecomendacao.innerText = recomendacao;
+                campos.boxResultado.style.display = "block";
+            }
         } else {
             campos.boxResultado.style.display = "none";
         }
     }
-
-    // Adiciona escutadores de eventos para recalcular ao vivo
-    ['idade', 'peso', 'sexo', 'creatinina', 'clearance_manual', 'antibiotico'].forEach(id => {
-        document.getElementById(id).addEventListener('input', atualizarInterface);
-        document.getElementById(id).addEventListener('change', atualizarInterface);
-    });
-
-    campos.radiosClearance.forEach(radio => {
-        radio.addEventListener('change', atualizarInterface);
-    });
-
 </script>
 </body>
 </html>
