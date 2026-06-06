@@ -94,7 +94,7 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
             </div>
         `;
         }
-        if (dialise) {
+        if (dialise && peso >= 40) {
             return `
             <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Acima de 40 Quilos</h5>
@@ -121,7 +121,7 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                             <td style="${estiloCelula}">30 minutos</td>
                         </tr>
                         <tr>
-                            <td style="${estiloCelula}">Fazer dose extra após diálise</td>
+                            <td colspan="3" style="${estiloCelula}">Fazer dose extra após diálise</td>
                         </tr>
                     </tbody>
                 </table>
@@ -197,7 +197,7 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
             </div>
         `;
         }
-        if (dialise) {
+        if (dialise && peso < 40) {
             return `
             <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Abaixo de 40 Quilos</h5>
@@ -216,7 +216,7 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                             <td style="${estiloCelula}">30 minutos</td>
                         </tr>
                         <tr>
-                            <td style="${estiloCelula}">Fazer dose extra após diálise</td>
+                            <td colspan="3" style="${estiloCelula}">Fazer dose extra após diálise</td>
                         </tr>
                     </tbody>
                 </table>
