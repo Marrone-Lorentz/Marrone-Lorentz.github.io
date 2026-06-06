@@ -15,12 +15,12 @@ window.bancoDeAntibioticos["polimixinab"] = {
             return "Dose: 500 mg a cada 24h.<br>Administrar a dose após a sessão nos dias de hemodiálise.";
         }
         if (clcr >= 50 && dose25 < 2500000) {
-            return "<b>Ataque:</b><br>
+            return "Ataque:<br>
               Dose: ${dose25}UI imediato.<br>
               Diluição mínima: ${diluicao25} mL SG 5%.<br>
               Tempo de Infusão: if (dose25 <= 1000000) {return "60 minutos"} if (dose25 > 1000000) {return "90 a 120 minutos"}<br>
               <br>
-              <b>Manutenção:</b><br>
+              Manutenção:<br>
               ${dose25 / 2}UI de 12/12h diluído em ${diluicao25 / 2}ml de SG 5%";
         }
         if (clcr >= 26 && clcr < 50) {
