@@ -10,7 +10,8 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
         let diluicao = dose40 / 12;
 
         if (clcr >= 50 && peso >= 40) {
-            return <div class="div-tabela">
+            return `
+                <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Acima de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -29,9 +30,11 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         if (clcr < 50 && clcr >=10 && peso >= 40) {
-            return <div class="div-tabela">
+            return `
+            <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Acima de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -58,9 +61,11 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         if (clcr < 10 && peso >= 40) {
-            return <div class="div-tabela">
+            return `
+            <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Acima de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -87,9 +92,11 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         if (dialise) {
-            return <div class="div-tabela">
+            return `
+            <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Acima de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -119,9 +126,11 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         if (clcr >= 50 && peso < 40) {
-            return <div class="div-tabela">
+            return `
+            <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Abaixo de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -140,9 +149,11 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         if (clcr < 50 && clcr >= 10 && peso < 40) {
-            return <div class="div-tabela">
+            return `
+            <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Abaixo de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -161,9 +172,11 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         if (clcr < 10 && peso < 40) {
-            return <div class="div-tabela">
+            return `
+            <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Abaixo de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -182,9 +195,11 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         if (dialise) {
-            return <div class="div-tabela">
+            return `
+            <div class="div-tabela">
                 <h5 style="${estiloTitulo}">Abaixo de 40 Quilos</h5>
                 <table style="${estiloTabela}">
                     <thead>
@@ -206,6 +221,7 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                     </tbody>
                 </table>
             </div>
+        `;
         }
         return "Dados clínicos insuficientes para gerar a recomendação.";
     }
