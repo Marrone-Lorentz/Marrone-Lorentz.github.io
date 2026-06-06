@@ -121,7 +121,7 @@ window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
                             <td style="${estiloCelula}">30 minutos</td>
                         </tr>
                         <tr>
-                            <td colspan="4" style="${estiloCelula} text-align: center; background-collor: #f8fafc;">Fazer dose extra após diálise</td>
+                            <td style="${estiloCelula}">Fazer dose extra após diálise</td>
                         </tr>
                     </tbody>
                 </table>
