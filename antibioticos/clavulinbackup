@@ -1,4 +1,4 @@
-window.bancoDeAntibioticos["amoxicicilina+clavulanato"] = {
+window.bancoDeAntibioticos["backup-amoxicicilina+clavulanato"] = {
     nome: "Amoxicicilina + Clavulanato",
     avaliar: function(peso, clcr, dialise) {
         // Estilização padrão para deixar as tabelas elegantes e responsivas
