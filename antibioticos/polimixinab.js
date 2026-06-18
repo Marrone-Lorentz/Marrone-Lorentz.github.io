@@ -1,31 +1,144 @@
-window.bancoDeAntibioticos["polimixinab"] = {
+window.bancoDeAntibioticos["polimixina"] = {
     nome: "Polimixina B",
     avaliar: function(peso, clcr, dialise) {
-        // Estilização padrão para deixar as tabelas elegantes e responsivas
-        const estiloTabela = "width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; background-color: #fff;";
-        const estiloHeader = "background-color: #4a5568; color: white; padding: 10px; text-align: left; border: 1px solid #cbd5e0; font-weight: 600;";
-        const estiloCelula = "padding: 10px; border: 1px solid #cbd5e0; color: #2d3748;";
-        const estiloTitulo = "margin: 15px 0 8px 0; color: #2c3e50; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 3px;";
+        // 1. Definição e limites dos parâmetros baseados no peso
         let dose15 = peso * 15000;
+        if (dose15 > 2500000) dose15 = 2500000;
+
+        let dose15_2 = (peso * 15000) / 2;
+        if (dose15_2 > 2500000) dose15_2 = 2500000;
+
         let dose25 = peso * 25000;
-        let diluicao15 = dose15 / 3000;
-        let diluicao25 = dose25 / 3000;
-      
-        if (dialise) {
-            return "Dose: 500 mg a cada 24h.<br>Administrar a dose após a sessão nos dias de hemodiálise.";
-        }
-        if (clcr >= 50 && dose25 < 2500000) {
-            return "Ataque:<br>Dose: ${dose25}UI imediato.<br>Diluição mínima: ${diluicao25} mL SG 5%.<br>Tempo de Infusão: if (dose25 <= 1000000) {return "60 minutos"} if (dose25 > 1000000) {return "90 a 120 minutos"}<br><br>Manutenção:<br>${dose25 / 2}UI de 12/12h diluído em ${diluicao25 / 2}ml de SG 5%";
-        }
-        if (clcr >= 26 && clcr < 50) {
-            return "Dose: 1g a cada 12h.<br>Diluição: 100 mL SF 0,9%.<br>Tempo de Infusão: 3 horas.";
-        }
-        if (clcr >= 10 && clcr <= 25) {
-            return "Dose: 500 mg a cada 12h.";
-        }
-        if (clcr < 10) {
-            return "Dose: 500 mg a cada 24h.";
-        }
-        return "Dados clínicos insuficientes para gerar a recomendação.";
+        // O parâmetro dose25 em si não tem teto no enunciado, mas a exibição na tabela sim
+
+        let dose25_2 = (peso * 25000) / 2;
+        if (dose25_2 > 2500000) dose25_2 = 2500000;
+
+        // Regras de exibição da Tabela 1 (Ataque)
+        let exibeDose25 = dose25 > 2500000 ? 2500000 : dose25;
+        let diluicaoAtaque = Math.round(dose25 / 3000);
+        let velocidadeAtaque = exibeDose25 <= 1000000 ? "60 minutos" : "90-120min";
+
+        // Regras de exibição da Tabela 2 (Manutenção)
+        let velMinManutencao = dose15_2 <= 1000000 ? "60 minutos" : "90-120min";
+        let velMaxManutencao = dose25_2 <= 1000000 ? "60 minutos" : "90-120min";
+
+        // Estilização das tabelas
+        const estiloTabela = "width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 14px; background-color: #fff;";
+        const estiloHeader = "background-color: #4a5568; color: white; padding: 8px; text-align: left; border: 1px solid #cbd5e0; font-weight: 600;";
+        const estiloCelula = "padding: 8px; border: 1px solid #cbd5e0; color: #2d3748;";
+        const estiloTitulo = "margin: 10px 0 5px 0; color: #2c3e50; font-size: 15px; font-weight: bold;";
+
+        // Criamos uma função global temporária para calcular a dose customizada ao vivo
+        window.calcularPoliCustomizada = function(input) {
+            let valor = parseInt(input.value);
+            if (isNaN(valor) || valor < 0) {
+                document.getElementById("poli_diluicao").innerText = "-";
+                document.getElementById("poli_velocidade").innerText = "-";
+                return;
+            }
+            if (valor > 2500000) {
+                valor = 2500000;
+                input.value = 2500000;
+            }
+            
+            let diluicao = Math.round(valor / 3000);
+            let velocidade = valor <= 1000000 ? "60 minutos" : "90-120min";
+
+            document.getElementById("poli_diluicao").innerText = diluicao + " ml de SG5%";
+            document.getElementById("poli_velocidade").innerText = velocidade;
+        };
+
+        return `
+			<div style="margin-top: 20px; padding: 12px; background-color: #fff5f5; border-left: 4px solid #e53e3e; border-radius: 4px; font-size: 13px;">
+                <b style="color: #c53030; font-size: 14px; display: block; margin-bottom: 5px;">🛑 Contraindicações / Alertas:</b>
+                <ul style="margin: 0; padding-left: 20px; color: #2d3748; line-height: 1.6;">
+                    <li><b>Não usar em ITU:</b> Baixa penetração no parênquima renal e eliminação urinária em forma inativa.</li>
+                    <li><b>Incompatibilidade em Y-site:</b> Incompatível com infusão rápida (IR) em bomba de infusão contínua (BIC) — utilizar acessos distintos.</li>
+                    <li><b>Uso concomitante com curare:</b> Evitar. A polimixina potencializa o bloqueio neuromuscular.</li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 10px; padding: 12px; background-color: #f7fafc; border-left: 4px solid #4a5568; border-radius: 4px; font-size: 13px;">
+                <b style="color: #2d3748; font-size: 14px; display: block; margin-bottom: 5px;">📋 Cuidados / Monitorização:</b>
+                <ul style="margin: 0; padding-left: 20px; color: #2d3748; line-height: 1.6;">
+                    <li>Monitorar rigorosamente nefrotoxicidade, neurotoxicidade e parâmetros respiratórios.</li>
+                    <li>Solicitar acompanhamento especializado da comissão ou equipe de <b>Infectologia</b>.</li>
+                </ul>
+            </div>
+		
+            <div style="${estiloTitulo}">Dose de Ataque</div>
+            <table style="${estiloTabela}">
+                <tbody>
+                    <tr>
+                        <td style="${estiloHeader}"><b>Dose:</b></td>
+                        <td style="${estiloCelula}">${exibeDose25.toLocaleString('pt-BR')} UI</td>
+                    </tr>
+                    <tr>
+                        <td style="${estiloHeader}"><b>Diluição mínima:</b></td>
+                        <td style="${estiloCelula}">${diluicaoAtaque} ml de SG5%</td>
+                    </tr>
+                    <tr>
+                        <td style="${estiloHeader}"><b>Velocidade de infusão:</b></td>
+                        <td style="${estiloCelula}">${velocidadeAtaque}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="${estiloTitulo}">Dose de Manutenção</div>
+            <table style="${estiloTabela}">
+                <tbody>
+                    <tr>
+                        <td rowspan="2" style="${estiloHeader}"><b>Dose:</b></td>
+                        <td style="${estiloCelula}">Dose mínima</td>
+                        <td style="${estiloCelula}">${dose15_2.toLocaleString('pt-BR')} UI 12/12h</td>
+                    </tr>
+                    <tr>
+                        <td style="${estiloCelula}">Dose máxima</td>
+                        <td style="${estiloCelula}">${dose25_2.toLocaleString('pt-BR')} UI 12/12h</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" style="${estiloHeader}"><b>Diluição:</b></td>
+                        <td style="${estiloCelula}">Diluição mínima</td>
+                        <td style="${estiloCelula}">${Math.round(dose15_2 / 3000)} ml de SG5%</td>
+                    </tr>
+                    <tr>
+                        <td style="${estiloCelula}">Diluição máxima</td>
+                        <td style="${estiloCelula}">${Math.round(dose25_2 / 3000)} ml de SG5%</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" style="${estiloHeader}"><b>Velocidade de infusão:</b></td>
+                        <td style="${estiloCelula}">Velocidade mínima</td>
+                        <td style="${estiloCelula}">${velMinManutencao}</td>
+                    </tr>
+                    <tr>
+                        <td style="${estiloCelula}">Velocidade máxima</td>
+                        <td style="${estiloCelula}">${velMaxManutencao}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="${estiloTitulo}">Dose Customizada</div>
+            <table style="${estiloTabela}">
+                <tbody>
+                    <tr>
+                        <td style="${estiloHeader}"><b>Dose:</b></td>
+                        <td style="${estiloCelula}">
+                            <input type="number" id="poli_custom_input" step="1" min="0" max="2500000" 
+                                   style="width: 140px; padding: 4px; border: 1px solid #cbd5e0; border-radius: 4px;" 
+                                   oninput="window.calcularPoliCustomizada(this)" placeholder="Digite a dose em UI"> UI
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="${estiloHeader}"><b>Diluição mínima:</b></td>
+                        <td id="poli_diluicao" style="${estiloCelula}">-</td>
+                    </tr>
+                    <tr>
+                        <td style="${estiloHeader}"><b>Velocidade de infusão:</b></td>
+                        <td id="poli_velocidade" style="${estiloCelula}">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
     }
 };
