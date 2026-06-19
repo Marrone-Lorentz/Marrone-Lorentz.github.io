@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AltaPIKA - Preenchimento de LME</title>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        h3 { 
+            color: #4a5568; 
+            border-bottom: 2px solid #edf2f7; 
+            padding-bottom: 8px; 
+            margin-top: 25px; 
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #4a5568; }
+        input[type="number"], input[type="text"], select {
+            width: 100%; padding: 10px; border: 1px solid #cbd5e0;
+            border-radius: 5px; box-sizing: border-box; font-size: 16px;
+        }
+        
+        /* Grupo especial para alinhar o input de data e o botão ao lado */
+        .date-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        .date-input-group input {
+            flex: 1;
+        }
+        
+        .container-btn-mediciacoes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn-medicação {
+            display: block;
+            text-align: center;
+            padding: 12px 20px;
+            background-color: #4a5568;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-medicação:hover {
+            background-color: #2d3748;
+        }
+        .btn-secondary {
+            background-color: #718096;
+            padding: 10px 15px;
+            font-size: 14px;
+            white-space: nowrap;
+            width: auto;
+        }
+        .btn-secondary:hover {
+            background-color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>AltaPIKA</h2>
+
+        <form id="lmeForm">
+            <h3>DADOS DO PACIENTE</h3>
+            
+            <div class="form-group">
+                <label for="nomePaciente">Nome do Paciente</label>
+                <input type="text" id="nomePaciente" placeholder="Nome completo">
+            </div>
+
+            <div class="form-group">
+                <label for="idadePaciente">Idade do Paciente</label>
+                <input type="number" id="idadePaciente" placeholder="Ex: 45">
+            </div>
+
+            <div class="form-group">
+                <label for="pesoPaciente">Peso do Paciente (kg)</label>
+                <input type="text" id="pesoPaciente" placeholder="Ex: 70">
+            </div>
+
+            <div class="form-group">
+                <label for="alturaPaciente">Altura do Paciente (cm)</label>
+                <input type="text" id="alturaPaciente" placeholder="Ex: 175">
+            </div>
+
+            <div class="form-group">
+                <label for="cnsPaciente">CNS do Paciente</label>
+                <input type="text" id="cnsPaciente" placeholder="Número do Cartão SUS">
+            </div>
+
+            <div class="form-group">
+                <label for="maePaciente">Mãe do Paciente</label>
+                <input type="text" id="maePaciente" placeholder="Nome da mãe completo">
+            </div>
+
+            <h3>DADOS DO MÉDICO</h3>
+
+            <div class="form-group">
+                <label for="nomeMedico">Nome do Médico</label>
+                <input type="text" id="nomeMedico" placeholder="Nome completo do médico">
+            </div>
+
+            <div class="form-group">
+                <label for="crmMedico">CRM do Médico</label>
+                <input type="text" id="crmMedico" placeholder="Ex: 12345-PR">
+            </div>
+
+            <div class="form-group">
+                <label for="cnsMedico">CNS do Médico</label>
+                <input type="text" id="cnsMedico" placeholder="CNS do profissional">
+            </div>
+
+            <h3>DATA DO DOCUMENTO</h3>
+            <div class="form-group">
+                <label for="dataDocumento">Data</label>
+                <div class="date-input-group">
+                    <input type="text" id="dataDocumento" placeholder="DD/MM/YYYY" maxlength="10">
+                    <button type="button" class="btn-medicação btn-secondary" onclick="preencherDataHoje()">Data de hoje</button>
+                </div>
+            </div>
+
+            <h3>GERAR SOLICITAÇÃO (LME)</h3>
+            <div class="container-btn-mediciacoes">
+                <button type="button" class="btn-medicação" onclick="gerarPDF('atorva40.pdf')">Atorvastatina 40mg</button>
+                <button type="button" class="btn-medicação" onclick="gerarPDF('atorva80.pdf')">Atorvastatina 80mg</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Função para capturar a data do sistema e injetar no campo em formato PT-BR
+        function preencherDataHoje() {
+            const hoje = new Date();
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
+            const ano = hoje.getFullYear();
+            
+            document.getElementById('dataDocumento').value = `${dia}/${mes}/${ano}`;
+        }
+
+        // Função principal que carrega o PDF da pasta LME, preenche os campos e abre para impressão
+        async function gerarPDF(nomeArquivoPdf) {
+            const urlPdf = `LME/${nomeArquivoPdf}`;
+
+            try {
+                // 1. Buscar o arquivo PDF original
+                const response = await fetch(urlPdf);
+                if (!response.ok) throw new Error(`Não foi possível encontrar o arquivo PDF na pasta LME/${nomeArquivoPdf}`);
+                const pdfBytes = await response.arrayBuffer();
+
+                // 2. Carregar o PDF usando a biblioteca pdf-lib
+                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+                const form = pdfDoc.getForm();
+
+                // 3. Mapear os dados coletados do formulário web para os IDs exatos dos campos editáveis do seu PDF
+                const camposMap = {
+                    'NOME': document.getElementById('nomePaciente').value,
+                    'IDADE': document.getElementById('idadePaciente').value,
+                    'PESO': document.getElementById('pesoPaciente').value,
+                    'ALTURA': document.getElementById('alturaPaciente').value,
+                    'CNS': document.getElementById('cnsPaciente').value,
+                    'MAE': document.getElementById('maePaciente').value,
+                    'MEDICO': document.getElementById('nomeMedico').value,
+                    'CRM': document.getElementById('crmMedico').value,
+                    'CNSM': document.getElementById('cnsMedico').value,
+                    'DATA': document.getElementById('dataDocumento').value
+                };
+
+                // 4. Injetar os valores nos respectivos campos do PDF
+                for (const [nomeCampoPdf, valor] of Object.entries(camposMap)) {
+                    try {
+                        const campo = form.getTextField(nomeCampoPdf);
+                        campo.setText(valor);
+                    } catch (err) {
+                        // Caso algum campo não exista especificamente em um dos arquivos, ele ignora silenciosamente e continua
+                        console.warn(`Aviso: O campo editável "${nomeCampoPdf}" não foi mapeado ou encontrado no PDF ${nomeArquivoPdf}.`);
+                    }
+                }
+
+                // 5. Salvar o PDF modificado
+                const pdfModificadoBytes = await pdfDoc.save();
+
+                // 6. Criar uma URL temporária do Blob para abrir em nova aba com comando de impressão
+                const blob = new Blob([pdfModificadoBytes], { type: 'application/pdf' });
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Abre em nova aba
+                const novaAba = window.open(blobUrl, '_blank');
+                
+                // Força a janela de impressão do navegador a abrir assim que carregar o PDF
+                if (novaAba) {
+                    novaAba.focus();
+                } else {
+                    alert("Por favor, permita pop-ups para que o PDF gerado abra automaticamente.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert(`Erro ao processar o formulário LME: ${error.message}`);
+            }
+        }
+
+        // Máscara simples automática para o campo de data (adiciona as barras sozinho)
+        document.getElementById('dataDocumento').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length >= 5) {
+                v = `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4)}`;
+            } else if (v.length >= 3) {
+                v = `${v.slice(0, 2)}/${v.slice(2)}`;
+            }
+            e.target.value = v;
+        });
+    </script>
+</body>
+</html>
