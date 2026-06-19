@@ -23,13 +23,29 @@ window.bancoDeAntibioticos["colistina"] = {
         const estiloCelula = "padding: 8px; border: 1px solid #cbd5e0; color: #2d3748;";
         const estiloTitulo = "margin: 10px 0 5px 0; color: #2c3e50; font-size: 15px; font-weight: bold;";
 
-        // Função global para o campo customizado rodar na hora
+        // FUNÇÃO DE MÁSCARA E CÁLCULO ATUALIZADA PARA FORMATAR MILHARES
         window.calcularColisCustomizada = function(input) {
-            let valor = parseInt(input.value);
+            // Remove tudo o que não for número puro
+            let apenasNumeros = input.value.replace(/\D/g, '');
+            
+            if (apenasNumeros === '') {
+                input.value = '';
+                document.getElementById("colis_diluicao").innerText = "-";
+                return;
+            }
+
+            let valor = parseInt(apenasNumeros);
+
+            // Se o usuário apagar ou digitar 0
             if (isNaN(valor) || valor < 0) {
                 document.getElementById("colis_diluicao").innerText = "-";
                 return;
             }
+
+            // Atualiza o valor do input aplicando a formatação de pontos (Ex: 1.500.000)
+            input.value = valor.toLocaleString('pt-BR');
+
+            // Executa o cálculo da diluição mínima baseado no valor numérico limpo
             let diluicao = Math.round(valor / 90000);
             document.getElementById("colis_diluicao").innerText = diluicao + " ml de SF / SG5%";
         };
@@ -248,30 +264,31 @@ window.bancoDeAntibioticos["colistina"] = {
             htmlManutencao = `<div style="${estiloTitulo} color: #c53030;">Aguardando dados complementares de função renal...</div>`;
         }
 
-        // TABELA 3: CUSTOMIZADA (Aparece Sempre)
+        // TABELA 3: CUSTOMIZADA (Alterada para tipo "text" para aceitar a máscara de pontos)
         let htmlCustomizada = `
             <div style="${estiloTitulo}">Dose Customizada</div>
             <table style="${estiloTabela}">
                 <tbody>
                     <tr>
-                        <td style="${estiloHeader}"><b>Dose:</b></td>
+                        <td style="${estiloCelula}"><b>Dose:</b></td>
                         <td style="${estiloCelula}">
-                            <input type="number" id="colis_custom_input" step="1" min="0"
+                            <input type="text" id="colis_custom_input" 
                                    style="width: 140px; padding: 4px; border: 1px solid #cbd5e0; border-radius: 4px;" 
                                    oninput="window.calcularColisCustomizada(this)" placeholder="Digite a dose em UI"> UI
                         </td>
                     </tr>
                     <tr>
-                        <td style="${estiloHeader}"><b>Diluição mínima:</b></td>
+                        <td style="${estiloCelula}"><b>Diluição mínima:</b></td>
                         <td id="colis_diluicao" style="${estiloCelula}">-</td>
                     </tr>
                     <tr>
-                        <td style="${estiloHeader}"><b>Velocidade de infusão:</b></td>
+                        <td style="${estiloCelula}"><b>Velocidade de infusão:</b></td>
                         <td style="${estiloCelula}">30 - 60 min</td>
                     </tr>
                 </tbody>
             </table>
         `;
+
 
         // Retorna a junção de todas as tabelas geradas de acordo com as regras estruturadas
         return htmlAvisos + htmlAtaque + htmlManutencao + htmlCustomizada;
