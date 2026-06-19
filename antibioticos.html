@@ -19,7 +19,43 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        h2 { text-align: center; color: #2c3e50; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 15px; }
+        
+        /* Estilo do novo aviso em vermelho */
+        .alerta-prescricao {
+            background-color: #fff5f5;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+            border-left: 5px solid #e53e3e;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .container-btn-fonte {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .btn-fonte {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4a5568;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-fonte:hover {
+            background-color: #2d3748;
+        }
+
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 5px; color: #4a5568; }
         input[type="number"], input[type="text"], select {
@@ -46,6 +82,14 @@
 
 <div class="container">
     <h2>Ajuste de Antimicrobianos</h2>
+    
+    <div class="alerta-prescricao">
+        ⚠️ Esse site foi feito para auxiliar a prescrição de antibióticos, mas você deve sempre conferir manualmente as doses e diluições conforme o documento abaixo:
+    </div>
+
+    <div class="container-btn-fonte">
+        <a href="BRCAST.pdf" target="_blank" class="btn-fonte">📄 Visualizar arquivo fonte</a>
+    </div>
 
     <div class="form-group">
         <label>Idade (anos):</label>
@@ -161,14 +205,26 @@
         });
     }
 
-    // Preenche a lista suspensa (select) após carregar os arquivos externos
+    // Preenche a lista suspensa organizando em ORDEM ALFABÉTICA pelo nome legível da droga
     function inicializarDropdown() {
+        let itensParaMapear = [];
+
         Object.keys(window.bancoDeAntibioticos).forEach(chave => {
+            itensParaMapear.push({
+                id: chave,
+                nome: window.bancoDeAntibioticos[chave].nome
+            });
+        });
+
+        itensParaMapear.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+        itensParaMapear.forEach(item => {
             let option = document.createElement("option");
-            option.value = chave;
-            option.text = window.bancoDeAntibioticos[chave].nome;
+            option.value = item.id;
+            option.text = item.nome;
             campos.selectAntibiotico.add(option);
         });
+        
         configurarEventos();
     }
 
