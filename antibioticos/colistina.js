@@ -270,7 +270,7 @@ window.bancoDeAntibioticos["colistina"] = {
             <table style="${estiloTabela}">
                 <tbody>
                     <tr>
-                        <td style="${estiloCelula}"><b>Dose:</b></td>
+                        <td style="${estiloHeader}"><b>Dose:</b></td>
                         <td style="${estiloCelula}">
                             <input type="text" id="colis_custom_input" 
                                    style="width: 140px; padding: 4px; border: 1px solid #cbd5e0; border-radius: 4px;" 
@@ -278,11 +278,11 @@ window.bancoDeAntibioticos["colistina"] = {
                         </td>
                     </tr>
                     <tr>
-                        <td style="${estiloCelula}"><b>Diluição mínima:</b></td>
+                        <td style="${estiloHeader}"><b>Diluição mínima:</b></td>
                         <td id="colis_diluicao" style="${estiloCelula}">-</td>
                     </tr>
                     <tr>
-                        <td style="${estiloCelula}"><b>Velocidade de infusão:</b></td>
+                        <td style="${estiloHeader}"><b>Velocidade de infusão:</b></td>
                         <td style="${estiloCelula}">30 - 60 min</td>
                     </tr>
                 </tbody>
