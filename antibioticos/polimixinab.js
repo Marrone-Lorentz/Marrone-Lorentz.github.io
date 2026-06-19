@@ -30,23 +30,37 @@ window.bancoDeAntibioticos["polimixina"] = {
         const estiloTitulo = "margin: 10px 0 5px 0; color: #2c3e50; font-size: 15px; font-weight: bold;";
 
         // Criamos uma função global temporária para calcular a dose customizada ao vivo
+        // FUNÇÃO DE MÁSCARA E CÁLCULO PARA FORMATAR MILHARES (POLIMIXINA)
         window.calcularPoliCustomizada = function(input) {
-            let valor = parseInt(input.value);
-            if (isNaN(valor) || valor < 0) {
+            // Remove tudo o que não for número puro
+            let apenasNumeros = input.value.replace(/\D/g, '');
+            
+            if (apenasNumeros === '') {
+                input.value = '';
                 document.getElementById("poli_diluicao").innerText = "-";
-                document.getElementById("poli_velocidade").innerText = "-";
                 return;
             }
-            if (valor > 2500000) {
-                valor = 2500000;
-                input.value = 2500000;
-            }
-            
-            let diluicao = Math.round(valor / 3000);
-            let velocidade = valor <= 1000000 ? "60 minutos" : "90-120min";
 
-            document.getElementById("poli_diluicao").innerText = diluicao + " ml de SG5%";
-            document.getElementById("poli_velocidade").innerText = velocidade;
+            let valor = parseInt(apenasNumeros);
+
+            // Se o usuário apagar ou digitar 0
+            if (isNaN(valor) || valor < 0) {
+                document.getElementById("poli_diluicao").innerText = "-";
+                return;
+            }
+			
+			// TRAVA DE SEGURANÇA: Limita o teto máximo em 2.500.000 UI
+			if (valor > 2500000){
+				valor = 2500000;
+			}
+
+            // Atualiza o valor do input aplicando a formatação de pontos (Ex: 1.500.000)
+            input.value = valor.toLocaleString('pt-BR');
+
+            // Executa o cálculo da diluição mínima baseado no valor numérico da Polimixina
+            // Nota: Mantenha a fórmula de cálculo que você já usava originalmente para a Polimixina aqui
+            let diluicao = Math.round(valor / 90000); 
+            document.getElementById("poli_diluicao").innerText = diluicao + " ml de SF / SG5%";
         };
 
         return `
@@ -56,6 +70,7 @@ window.bancoDeAntibioticos["polimixina"] = {
                     <li><b>Não usar em ITU:</b> Baixa penetração no parênquima renal e eliminação urinária em forma inativa.</li>
                     <li><b>Incompatibilidade em Y-site:</b> Incompatível com infusão rápida (IR) em bomba de infusão contínua (BIC) — utilizar acessos distintos.</li>
                     <li><b>Uso concomitante com curare:</b> Evitar. A polimixina potencializa o bloqueio neuromuscular.</li>
+                    <li><b>Dose máxima diária:</b> Não exceder 2.500.000 UI por dia.</li>
                 </ul>
             </div>
 
@@ -122,19 +137,19 @@ window.bancoDeAntibioticos["polimixina"] = {
             <table style="${estiloTabela}">
                 <tbody>
                     <tr>
-                        <td style="${estiloHeader}"><b>Dose:</b></td>
+                        <td style="${estiloCelula}"><b>Dose:</b></td>
                         <td style="${estiloCelula}">
-                            <input type="number" id="poli_custom_input" step="1" min="0" max="2500000" 
+                            <input type="text" id="poli_custom_input" 
                                    style="width: 140px; padding: 4px; border: 1px solid #cbd5e0; border-radius: 4px;" 
                                    oninput="window.calcularPoliCustomizada(this)" placeholder="Digite a dose em UI"> UI
                         </td>
                     </tr>
                     <tr>
-                        <td style="${estiloHeader}"><b>Diluição mínima:</b></td>
+                        <td style="${estiloCelula}"><b>Diluição mínima:</b></td>
                         <td id="poli_diluicao" style="${estiloCelula}">-</td>
                     </tr>
                     <tr>
-                        <td style="${estiloHeader}"><b>Velocidade de infusão:</b></td>
+                        <td style="${estiloCelula}"><b>Velocidade de infusão:</b></td>
                         <td id="poli_velocidade" style="${estiloCelula}">-</td>
                     </tr>
                 </tbody>
