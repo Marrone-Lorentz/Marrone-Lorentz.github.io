@@ -68,6 +68,19 @@
             padding: 10px 5px;
         }
         
+		.alerta-prescricao {
+            background-color: #fff5f5;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+            border-left: 5px solid #e53e3e;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
         /* Caixa de informações sobre exames e adequação de dose */
         .info-medicacao {
             background-color: #f8fafc;
@@ -288,6 +301,10 @@
                 <span class="seta">►</span>
             </div>
             <div class="med-conteudo">
+                <div class="alerta-prescricao" style="margin-top: 5px;">
+                Atenção: Pacientes com 65 anos ou mais podem retirar esta medicação gratuitamente pelo programa Farmácia Popular sem LME!
+            </div>
+			
                 <div class="info-medicacao">
                     <strong>Exames necessários:</strong> Laudo de Ecocardiografia (FE 40% ou menor) e relatório médico.
                 </div>
@@ -308,6 +325,9 @@
                 <span class="seta">►</span>
             </div>
             <div class="med-conteudo">
+                <div class="alerta-prescricao" style="margin-top: 5px;">
+                Atenção: Essa medicação só pode ser iniciada se o paciente ainda não completou 75 anos de idade!<br><br>Porém se o paciente começou a medicação antes disso, ele pode continuar recebendo o Entresto por LME mesmo após completar 75 anos.
+            </div>
                 <div class="info-medicacao">
                     <strong>Exames necessários:</strong> BNP (Sem validade), Ecocardiograma com FE 40% ou menor (Sem validade).<br>
                     <strong>Adequação de dose:</strong> Necessita de BNP (Sem validade), Ecocardiograma com FE 40% ou menor (Sem validade) e novo relatório.
@@ -347,8 +367,66 @@
                 </div>
             </div>
 
+            <!-- BLOCO ENTRESTO + DAPAGLIFLOZINA -->
+            <div class="med-subtitulo" onclick="toggleMedicaçao(this)">
+                <span>Entresto + Dapagliflozina (ICFER)</span>
+                <span class="seta">►</span>
+            </div>
+            <div class="med-conteudo">
+                <div class="alerta-prescricao" style="margin-top: 5px;">
+                As vezes a Regional de Saúde pede para que medicações com o mesmo CID fiquem na mesma LME, então tem essa opção de juntar Entresto e Dapagliflozina na mesma LME e receita caso seja necessário.
+            </div>
+			
+                <div class="alerta-prescricao" style="margin-top: 5px;">
+                Atenção: O Entresto só pode ser iniciado se o paciente ainda não completou 75 anos de idade!<br><br>Porém se o paciente começou a medicação antes disso, ele pode continuar recebendo o Entresto por LME mesmo após completar 75 anos.
+            </div>
+                <div class="info-medicacao">
+                    <strong>Exames necessários:</strong> BNP (Sem validade), Ecocardiograma com FE 40% ou menor (Sem validade).<br>
+                    <strong>Adequação de dose:</strong> Necessita de BNP (Sem validade), Ecocardiograma com FE 40% ou menor (Sem validade) e novo relatório.
+                </div>
+
+                <div class="form-group">
+                    <label for="justificativaDapa">Justificativa do Relatório para Dapagliflozina:</label>
+                    <textarea id="justificativaDapa">Paciente com ICFER X%, apresenta dispneia aos esforços, dispneia paroxística noturna, ortopneia e edema de MMII, em uso de (coloque os medicamentos aqui) e classe funcional NYHA III</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="paEntresto">Pressão Arterial (PA)</label>
+                    <input type="text" id="paEntresto" placeholder="Ex: 120x80">
+                </div>
+
+                <div class="form-group">
+                    <label for="feEntresto">Fração de Ejeção (FE %)</label>
+                    <input type="number" id="feEntresto" min="0" max="100" step="1" placeholder="Apenas números inteiros. Ex: 35">
+                </div>
+
+                <div class="row-bnp">
+                    <div class="form-group">
+                        <label for="bnpEntresto">Valor de BNP</label>
+                        <input type="text" id="bnpEntresto" placeholder="Ex: 450">
+                    </div>
+                    <div class="texto-ou">ou</div>
+                    <div class="form-group">
+                        <label for="ntEntresto">Valor de NT-proBNP</label>
+                        <input type="text" id="ntEntresto" placeholder="Ex: 1200">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="mucEntresto">Medicações para ICFER em uso:</label>
+                    <textarea id="mucEntresto">O paciente já fez uso das seguintes medicações: </textarea>
+                </div>
+
+                <div class="container-btn-mediciacoes">
+                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 50mg (24mg+26mg)')">Entresto 50mg + Dapagliflozina 10mg</button>
+                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 100mg (49mg+51mg)')">Entresto 100mg + Dapagliflozina 10mg</button>
+                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 200mg (97mg+103mg)')">Entresto 200mg + Dapagliflozina 10mg</button>
+                </div>
+            </div>
+
         </form>
     </div>
+
 
     <script>
         // Função para abrir e fechar as abas das medicações
