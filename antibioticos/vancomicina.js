@@ -46,6 +46,9 @@ window.bancoDeAntibioticos["vancomicina"] = {
                 valor = 2250;
                 input.value = 2250;
             }
+            // Atualiza o valor do input aplicando a formatação de pontos (Ex: 1.500.000)
+            input.value = valor.toLocaleString('pt-BR');
+			
             let dil = Math.round(valor / 10);
             let vel = Math.round(valor / 20);
 
@@ -210,9 +213,9 @@ window.bancoDeAntibioticos["vancomicina"] = {
                     </tbody>
                 </table>
             `;
-        } else if (clcr >= 30 && clcr <= 49) {
+        } else if (clcr >= 30 && clcr < 50) {
             htmlManutencao = `
-                <div style="${estiloTitulo}">Dose de Manutenção (ClCr 30 - 49)</div>
+                <div style="${estiloTitulo}">Dose de Manutenção (ClCr 30 - 50)</div>
                 <table style="${estiloTabela}">
                     <tbody>
                         <tr>
