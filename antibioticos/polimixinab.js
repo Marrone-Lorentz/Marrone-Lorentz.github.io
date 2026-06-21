@@ -61,6 +61,15 @@ window.bancoDeAntibioticos["polimixina"] = {
             // Nota: Mantenha a fórmula de cálculo que você já usava originalmente para a Polimixina aqui
             let diluicao = Math.round(valor / 3000); 
             document.getElementById("poli_diluicao").innerText = diluicao + " ml de SF / SG5%";
+			
+			// NOVO: Cálculo e exibição da velocidade de infusão
+            let velocidade = "";
+            if (valor <= 1000000) {
+                velocidade = "60 minutos";
+            } else {
+                velocidade = "90-120min";
+            }
+            document.getElementById("poli_velocidade").innerText = velocidade;
         };
 
         return `
