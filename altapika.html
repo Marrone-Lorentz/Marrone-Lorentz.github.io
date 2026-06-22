@@ -471,7 +471,7 @@ async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = 
             'DATA': document.getElementById('dataDocumento').value
         };
 
-        // 2. Condicional: Coleta os dados baseado em qual aba gerou a requisição
+        // Condicional: Coleta os dados baseado em qual aba gerou a requisição
         if (isCombo) {
             camposMap['DAPAICFER'] = document.getElementById('justificativaDapaCombo').value;
             camposMap['PA'] = document.getElementById('paCombo').value;
@@ -488,11 +488,15 @@ async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = 
             camposMap['MUC'] = document.getElementById('mucEntresto').value;
         }
 
-        // 3. Injetar o texto bruto
+        // 2. Injetar o texto nos campos aplicando a correção do GitHub
         for (const [nomeCampoPdf, valor] of Object.entries(camposMap)) {
             try {
                 const campo = form.getTextField(nomeCampoPdf);
-                campo.setText(valor);
+                
+                // APLICAÇÃO DA SOLUÇÃO DA ISSUE #1597:
+                // Preenche o valor mas impede o pdf-lib de gerar novos fluxos de aparência padrão (default streams),
+                // mantendo as fontes (Arial, Times, etc.), tamanhos originais e alinhamentos intactos.
+                campo.setText(valor, { updateAppearances: false });
             } catch (err) {}
         }
 
@@ -500,21 +504,17 @@ async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = 
         if (valorEntrestoDropdown) {
             try {
                 const dropdown = form.getDropdown('ENTRESTO');
-                dropdown.select(valorEntrestoDropdown);
+                // Aplica a mesma lógica caso queira evitar sobrescritas visuais no dropdown
+                dropdown.select(valorEntrestoDropdown, { updateAppearances: false });
             } catch (err) {}
         }
 
-        // 4. CORREÇÃO DO ERRO: Ativa o NeedAppearances de forma direta e compatível com a versão unpkg
-        try {
-            const acroForm = pdfDoc.catalog.get(PDFLib.Name ? PDFLib.Name.of('AcroForm') : PDFLib.Name);
-            // Se o mapeamento direto falhar, usamos a propriedade nativa do form acroForm nativo do documento:
-            pdfDoc.catalog.getOrCreateAcroForm().set(
-                PDFLib.Name ? PDFLib.Name.of('NeedAppearances') : 'NeedAppearances', 
-                PDFLib.PDFBool ? PDFLib.PDFBool.True : true
-            );
-        } catch (e) {
-            console.warn("Aviso ao ativar propriedades nativas de aparência:", e);
-        }
+        // 3. Garante que os leitores de PDF interpretem as aparências originais dos formulários ao abrir
+        const acroForm = pdfDoc.catalog.get(PDFLib.Name ? PDFLib.Name.of('AcroForm') : 'AcroForm');
+        pdfDoc.catalog.getOrCreateAcroForm().set(
+            PDFLib.Name ? PDFLib.Name.of('NeedAppearances') : 'NeedAppearances', 
+            PDFLib.PDFBool ? PDFLib.PDFBool.True : true
+        );
 
         const pdfModificadoBytes = await pdfDoc.save();
         const blob = new Blob([pdfModificadoBytes], { type: 'application/pdf' });
