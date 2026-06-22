@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AltaPIKA - Preenchimento de LME</title>
-    <!-- Incluindo a biblioteca pdf-lib para manipulação dos PDFs editáveis -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <style>
         body {
@@ -20,30 +19,9 @@
             padding: 25px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-			position: relative; /* Essencial para o botão voltar se posicionar corretamente */
-            padding-top: 40px;  /* Abre espaço extra no topo para o botão */
         }
-		
-		/* Estilo do novo botão Voltar */
-        .btn-voltar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            color: #4a5568;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-        .btn-voltar:hover {
-            color: #2b6cb0;
-        }
-		
         h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
-		
+        
         /* Estrutura para os títulos de seções principais */
         .section-header {
             display: flex;
@@ -89,19 +67,6 @@
             padding: 10px 5px;
         }
         
-		.alerta-prescricao {
-            background-color: #fff5f5;
-            color: #c53030;
-            border: 1px solid #feb2b2;
-            border-left: 5px solid #e53e3e;
-            padding: 12px 15px;
-            border-radius: 6px;
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            text-align: center;
-            font-weight: 500;
-        }
         /* Caixa de informações sobre exames e adequação de dose */
         .info-medicacao {
             background-color: #f8fafc;
@@ -116,6 +81,21 @@
         }
         .info-medicacao strong {
             color: #2d3748;
+        }
+
+        /* Estilo do aviso em vermelho */
+        .alerta-prescricao {
+            background-color: #fff5f5;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+            border-left: 5px solid #e53e3e;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
         }
         
         .form-group { margin-bottom: 15px; }
@@ -207,12 +187,9 @@
 <body>
 
     <div class="container">
-	    <a href="index.html" class="btn-voltar">← Voltar</a>
-		
         <h2>AltaPIKA</h2>
 
         <form id="lmeForm">
-            <!-- SEÇÃO: DADOS DO PACIENTE -->
             <div class="section-header">
                 <h3>DADOS DO PACIENTE</h3>
             </div>
@@ -247,7 +224,6 @@
                 <input type="text" id="maePaciente" placeholder="Nome da mãe completo">
             </div>
 
-            <!-- SEÇÃO: DADOS DO MÉDICO -->
             <div class="section-header">
                 <h3>DADOS DO MÉDICO</h3>
                 <button type="button" class="btn-medicação btn-secondary" onclick="preencherDrRicardo()">Dr. Ricardo</button>
@@ -268,7 +244,6 @@
                 <input type="text" id="cnsMedico" placeholder="CNS do profissional">
             </div>
 
-            <!-- SEÇÃO: DATA -->
             <div class="section-header">
                 <h3>DATA DO DOCUMENTO</h3>
             </div>
@@ -280,7 +255,6 @@
                 </div>
             </div>
 
-            <!-- SEÇÃO: GERAR SOLICITAÇÃO (LME) -->
             <div class="section-header">
                 <h3>GERAR SOLICITAÇÃO (LME)</h3>
             </div>
@@ -325,18 +299,15 @@
             </div>
             <div class="med-conteudo">
                 <div class="alerta-prescricao" style="margin-top: 5px;">
-                Atenção: Pacientes com 65 anos ou mais podem retirar esta medicação gratuitamente pelo programa Farmácia Popular sem LME!
-            </div>
-			
+                    Atenção: Pacientes com 65 anos ou mais podem retirar esta medicação gratuitamente pelo programa Farmácia Popular!
+                </div>
                 <div class="info-medicacao">
                     <strong>Exames necessários:</strong> Laudo de Ecocardiografia (FE 40% ou menor) e relatório médico.
                 </div>
-                
                 <div class="form-group">
                     <label for="justificativaDapa">Justificativa do Relatório:</label>
                     <textarea id="justificativaDapa">Paciente com ICFER X%, apresenta dispneia aos esforços, dispneia paroxística noturna, ortopneia e edema de MMII, em uso de (coloque os medicamentos aqui) e classe funcional NYHA III</textarea>
                 </div>
-
                 <div class="container-btn-mediciacoes">
                     <button type="button" class="btn-medicação" onclick="gerarPDF('dapaicfer.pdf')">Dapagliflozina 10mg para ICFER</button>
                 </div>
@@ -348,24 +319,18 @@
                 <span class="seta">►</span>
             </div>
             <div class="med-conteudo">
-                <div class="alerta-prescricao" style="margin-top: 5px;">
-                Atenção: Essa medicação só pode ser iniciada se o paciente ainda não completou 75 anos de idade!<br><br>Porém se o paciente começou a medicação antes disso, ele pode continuar recebendo o Entresto por LME mesmo após completar 75 anos.
-            </div>
                 <div class="info-medicacao">
                     <strong>Exames necessários:</strong> BNP (Sem validade), Ecocardiograma com FE 40% ou menor (Sem validade).<br>
                     <strong>Adequação de dose:</strong> Necessita de BNP (Sem validade), Ecocardiograma com FE 40% ou menor (Sem validade) e novo relatório.
                 </div>
-
                 <div class="form-group">
                     <label for="paEntresto">Pressão Arterial (PA)</label>
                     <input type="text" id="paEntresto" placeholder="Ex: 120x80">
                 </div>
-
                 <div class="form-group">
                     <label for="feEntresto">Fração de Ejeção (FE %)</label>
                     <input type="number" id="feEntresto" min="0" max="100" step="1" placeholder="Apenas números inteiros. Ex: 35">
                 </div>
-
                 <div class="row-bnp">
                     <div class="form-group">
                         <label for="bnpEntresto">Valor de BNP</label>
@@ -377,22 +342,20 @@
                         <input type="text" id="ntEntresto" placeholder="Ex: 1200">
                     </div>
                 </div>
-
                 <div class="form-group" style="margin-top: 15px;">
                     <label for="mucEntresto">Medicações para ICFER em uso:</label>
                     <textarea id="mucEntresto">O paciente já fez uso das seguintes medicações: </textarea>
                 </div>
-
                 <div class="container-btn-mediciacoes">
                     <button type="button" class="btn-medicação" onclick="gerarPDF('Entresto.pdf', 'Sacubitril Valsartana 50mg (24mg+26mg)')">Entresto 50mg</button>
                     <button type="button" class="btn-medicação" onclick="gerarPDF('Entresto.pdf', 'Sacubitril Valsartana 100mg (49mg+51mg)')">Entresto 100mg</button>
                     <button type="button" class="btn-medicação" onclick="gerarPDF('Entresto.pdf', 'Sacubitril Valsartana 200mg (97mg+103mg)')">Entresto 200mg</button>
                 </div>
             </div>
-
+			
             <!-- BLOCO ENTRESTO + DAPAGLIFLOZINA -->
             <div class="med-subtitulo" onclick="toggleMedicaçao(this)">
-                <span>Entresto + Dapagliflozina (ICFER)</span>
+                <span>Entresto + Dapagliflozina</span>
                 <span class="seta">►</span>
             </div>
             <div class="med-conteudo">
@@ -409,47 +372,46 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="justificativaDapa">Justificativa do Relatório para Dapagliflozina:</label>
-                    <textarea id="justificativaDapa">Paciente com ICFER X%, apresenta dispneia aos esforços, dispneia paroxística noturna, ortopneia e edema de MMII, em uso de (coloque os medicamentos aqui) e classe funcional NYHA III</textarea>
+                    <label for="justificativaDapaCombo">Justificativa Dapa:</label>
+                    <textarea id="justificativaDapaCombo">Paciente com ICFER X%, apresenta dispneia aos esforços, dispneia paroxística noturna, ortopneia e edema de MMII, em uso de (coloque os medicamentos aqui) e classe funcional NYHA III</textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="paEntresto">Pressão Arterial (PA)</label>
-                    <input type="text" id="paEntresto" placeholder="Ex: 120x80">
+                    <label for="paCombo">Pressão Arterial (PA)</label>
+                    <input type="text" id="paCombo" placeholder="Ex: 120x80">
                 </div>
 
                 <div class="form-group">
-                    <label for="feEntresto">Fração de Ejeção (FE %)</label>
-                    <input type="number" id="feEntresto" min="0" max="100" step="1" placeholder="Apenas números inteiros. Ex: 35">
+                    <label for="feCombo">Fração de Ejeção (FE %)</label>
+                    <input type="number" id="feCombo" min="0" max="100" step="1" placeholder="Apenas números inteiros. Ex: 35">
                 </div>
 
                 <div class="row-bnp">
                     <div class="form-group">
-                        <label for="bnpEntresto">Valor de BNP</label>
-                        <input type="text" id="bnpEntresto" placeholder="Ex: 450">
+                        <label for="bnpCombo">Valor de BNP</label>
+                        <input type="text" id="bnpCombo" placeholder="Ex: 450">
                     </div>
                     <div class="texto-ou">ou</div>
                     <div class="form-group">
-                        <label for="ntEntresto">Valor de NT-proBNP</label>
-                        <input type="text" id="ntEntresto" placeholder="Ex: 1200">
+                        <label for="ntCombo">Valor de NT-proBNP</label>
+                        <input type="text" id="ntCombo" placeholder="Ex: 1200">
                     </div>
                 </div>
 
                 <div class="form-group" style="margin-top: 15px;">
-                    <label for="mucEntresto">Medicações para ICFER em uso:</label>
-                    <textarea id="mucEntresto">O paciente já fez uso das seguintes medicações: </textarea>
+                    <label for="mucCombo">Medicações para ICFER em uso:</label>
+                    <textarea id="mucCombo">O paciente já fez uso das seguintes medicações: </textarea>
                 </div>
 
                 <div class="container-btn-mediciacoes">
-                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 50mg (24mg+26mg)')">Entresto 50mg + Dapagliflozina 10mg</button>
-                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 100mg (49mg+51mg)')">Entresto 100mg + Dapagliflozina 10mg</button>
-                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 200mg (97mg+103mg)')">Entresto 200mg + Dapagliflozina 10mg</button>
+                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 50mg (24mg+26mg)', true)">Entresto 50mg + Dapagliflozina 10mg</button>
+                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 100mg (49mg+51mg)', true)">Entresto 100mg + Dapagliflozina 10mg</button>
+                    <button type="button" class="btn-medicação" onclick="gerarPDF('DapaEntresto.pdf', 'Sacubitril Valsartana 200mg (97mg+103mg)', true)">Entresto 200mg + Dapagliflozina 10mg</button>
                 </div>
             </div>
 
         </form>
     </div>
-
 
     <script>
         // Função para abrir e fechar as abas das medicações
@@ -483,8 +445,8 @@
             document.getElementById('dataDocumento').value = `${dia}/${mes}/${ano}`;
         }
 
-        // Função principal que busca na pasta LME/, preenche os campos e abre para impressão
-        async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null) {
+        // Função principal que busca na pasta LME/, preenche os campos respeitando as propriedades originais do PDF
+        async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = false) {
             const urlPdf = `LME/${nomeArquivoPdf}`;
 
             try {
@@ -494,8 +456,8 @@
 
                 const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
                 const form = pdfDoc.getForm();
-				
-                // Montagem do mapa global de campos mapeados
+
+                // 1. Dados Fixos do Cabeçalho comuns a todas as LMEs
                 const camposMap = {
                     'NOME': document.getElementById('nomePaciente').value,
                     'IDADE': document.getElementById('idadePaciente').value,
@@ -506,40 +468,49 @@
                     'MEDICO': document.getElementById('nomeMedico').value,
                     'CRM': document.getElementById('crmMedico').value,
                     'CNSM': document.getElementById('cnsMedico').value,
-                    'DATA': document.getElementById('dataDocumento').value,
-                    // Dapagliflozina
-                    'DAPAICFER': document.getElementById('justificativaDapa').value,
-                    // Entresto TextFields
-                    'PA': document.getElementById('paEntresto').value,
-                    'FE': document.getElementById('feEntresto').value,
-                    'BNP': document.getElementById('bnpEntresto').value,
-                    'NT': document.getElementById('ntEntresto').value,
-                    'MUC': document.getElementById('mucEntresto').value
+                    'DATA': document.getElementById('dataDocumento').value
                 };
 
-                // Injetar valores nos TextFields
+                // 2. Condicional: Coleta os dados baseado em qual aba gerou a requisição
+                if (isCombo) {
+                    camposMap['DAPAICFER'] = document.getElementById('justificativaDapaCombo').value;
+                    camposMap['PA'] = document.getElementById('paCombo').value;
+                    camposMap['FE'] = document.getElementById('feCombo').value;
+                    camposMap['BNP'] = document.getElementById('bnpCombo').value;
+                    camposMap['NT'] = document.getElementById('ntCombo').value;
+                    camposMap['MUC'] = document.getElementById('mucCombo').value;
+                } else {
+                    camposMap['DAPAICFER'] = document.getElementById('justificativaDapa').value;
+                    camposMap['PA'] = document.getElementById('paEntresto').value;
+                    camposMap['FE'] = document.getElementById('feEntresto').value;
+                    camposMap['BNP'] = document.getElementById('bnpEntresto').value;
+                    camposMap['NT'] = document.getElementById('ntEntresto').value;
+                    camposMap['MUC'] = document.getElementById('mucEntresto').value;
+                }
+
+                // 3. Injetar o texto bruto sem redefinir ou chutar estilos programaticamente
                 for (const [nomeCampoPdf, valor] of Object.entries(camposMap)) {
                     try {
                         const campo = form.getTextField(nomeCampoPdf);
                         campo.setText(valor);
-                    } catch (err) {
-                        console.warn(`Campo de texto "${nomeCampoPdf}" não processado para este PDF.`);
-                    }
+                    } catch (err) {}
                 }
-				
-                // Tratar caixa de combinação (Dropdown) específica do Entresto, se aplicável
+
+                // Tratar caixa de combinação (Dropdown) do Entresto
                 if (valorEntrestoDropdown) {
                     try {
                         const dropdown = form.getDropdown('ENTRESTO');
                         dropdown.select(valorEntrestoDropdown);
-                    } catch (err) {
-                        console.warn('Não foi possível selecionar o valor na caixa de combinação "ENTRESTO".');
-                    }
+                    } catch (err) {}
                 }
 
-			    //Essa linha transforma os campos azuis editáveis em texto fixo, sumindo com os fantasmas duplicados
-                form.flatten();
+                // 4. Força o leitor a usar estritamente as propriedades, fontes e tamanhos originais configurados no PDF
+                const acroForm = pdfDoc.catalog.get(PDFLib.Name.of('AcroForm'));
+                if (acroForm instanceof PDFLib.PDFDict) {
+                    acroForm.set(PDFLib.Name.of('NeedAppearances'), PDFLib.PDFBool.True);
+                }
 
+                // O método form.flatten() foi propositalmente retirado para não conflitar com as fontes nativas
                 const pdfModificadoBytes = await pdfDoc.save();
                 const blob = new Blob([pdfModificadoBytes], { type: 'application/pdf' });
                 const blobUrl = URL.createObjectURL(blob);
@@ -557,7 +528,7 @@
             }
         }
 
-        // Máscara simples automática para o campo de data (adiciona as barras)
+        // Máscara de barras automáticas para o campo de data
         document.getElementById('dataDocumento').addEventListener('input', function (e) {
             let v = e.target.value.replace(/\D/g, '').slice(0, 8);
             if (v.length >= 5) {
