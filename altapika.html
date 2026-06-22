@@ -504,7 +504,10 @@ async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = 
                 dropdown.select(valorEntrestoDropdown, { updateAppearances: false });
             } catch (err) {}
         }
-
+		
+		// Transforma os campos preenchidos em texto estático e bloqueia a edição do PDF
+		form.flatten();
+		
         // 3. CORREÇÃO DEFINITIVA: 
         // Em vez de manipular o dicionário AcroForm manualmente pelo catálogo (o que gerou o erro),
         // passamos o parâmetro 'updateFieldAppearances: false' direto no salvamento.
