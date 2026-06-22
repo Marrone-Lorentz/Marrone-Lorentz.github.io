@@ -494,9 +494,6 @@
 
                 const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
                 const form = pdfDoc.getForm();
-
-				// Essa linha avisa ao leitor de PDF para manter as fontes e tamanhos originais do arquivo
-                form.updateFieldAppearancesClean();
 				
                 // Montagem do mapa global de campos mapeados
                 const camposMap = {
