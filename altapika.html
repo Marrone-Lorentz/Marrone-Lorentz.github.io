@@ -488,14 +488,11 @@ async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = 
             camposMap['MUC'] = document.getElementById('mucEntresto').value;
         }
 
-        // 2. Injetar o texto nos campos aplicando a correção do GitHub
+        // 2. Injetar o texto nos campos aplicando a correção da Issue #1597
         for (const [nomeCampoPdf, valor] of Object.entries(camposMap)) {
             try {
                 const campo = form.getTextField(nomeCampoPdf);
-                
-                // APLICAÇÃO DA SOLUÇÃO DA ISSUE #1597:
-                // Preenche o valor mas impede o pdf-lib de gerar novos fluxos de aparência padrão (default streams),
-                // mantendo as fontes (Arial, Times, etc.), tamanhos originais e alinhamentos intactos.
+                // Preenche mas impede a biblioteca de recriar as streams visuais
                 campo.setText(valor, { updateAppearances: false });
             } catch (err) {}
         }
@@ -504,19 +501,16 @@ async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = 
         if (valorEntrestoDropdown) {
             try {
                 const dropdown = form.getDropdown('ENTRESTO');
-                // Aplica a mesma lógica caso queira evitar sobrescritas visuais no dropdown
                 dropdown.select(valorEntrestoDropdown, { updateAppearances: false });
             } catch (err) {}
         }
 
-        // 3. Garante que os leitores de PDF interpretem as aparências originais dos formulários ao abrir
-        const acroForm = pdfDoc.catalog.get(PDFLib.Name ? PDFLib.Name.of('AcroForm') : 'AcroForm');
-        pdfDoc.catalog.getOrCreateAcroForm().set(
-            PDFLib.Name ? PDFLib.Name.of('NeedAppearances') : 'NeedAppearances', 
-            PDFLib.PDFBool ? PDFLib.PDFBool.True : true
-        );
-
-        const pdfModificadoBytes = await pdfDoc.save();
+        // 3. CORREÇÃO DEFINITIVA: 
+        // Em vez de manipular o dicionário AcroForm manualmente pelo catálogo (o que gerou o erro),
+        // passamos o parâmetro 'updateFieldAppearances: false' direto no salvamento.
+        // Isso força o arquivo final a exigir as aparências nativas (NeedAppearances) sem quebrar o código.
+        const pdfModificadoBytes = await pdfDoc.save({ updateFieldAppearances: false });
+        
         const blob = new Blob([pdfModificadoBytes], { type: 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
         
@@ -532,8 +526,8 @@ async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = 
         alert(`Erro ao processar o formulário LME: ${error.message}`);
     }
 }
-
-        // Máscara de barras automáticas para o campo de data
+ 
+		// Máscara de barras automáticas para o campo de data
         document.getElementById('dataDocumento').addEventListener('input', function (e) {
             let v = e.target.value.replace(/\D/g, '').slice(0, 8);
             if (v.length >= 5) {
