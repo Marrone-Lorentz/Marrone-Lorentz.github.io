@@ -445,88 +445,93 @@
             document.getElementById('dataDocumento').value = `${dia}/${mes}/${ano}`;
         }
 
-        // Função principal que busca na pasta LME/, preenche os campos respeitando as propriedades originais do PDF
-        async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = false) {
-            const urlPdf = `LME/${nomeArquivoPdf}`;
+// Função principal que busca na pasta LME/, preenche os campos respeitando as propriedades originais do PDF
+async function gerarPDF(nomeArquivoPdf, valorEntrestoDropdown = null, isCombo = false) {
+    const urlPdf = `LME/${nomeArquivoPdf}`;
 
-            try {
-                const response = await fetch(urlPdf);
-                if (!response.ok) throw new Error(`Não foi possível carregar de LME/${nomeArquivoPdf}. Verifique se o arquivo existe ou se o servidor local está ativo.`);
-                const pdfBytes = await response.arrayBuffer();
+    try {
+        const response = await fetch(urlPdf);
+        if (!response.ok) throw new Error(`Não foi possível carregar de LME/${nomeArquivoPdf}. Verifique se o arquivo existe ou se o servidor local está ativo.`);
+        const pdfBytes = await response.arrayBuffer();
 
-                const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-                const form = pdfDoc.getForm();
+        const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+        const form = pdfDoc.getForm();
 
-                // 1. Dados Fixos do Cabeçalho comuns a todas as LMEs
-                const camposMap = {
-                    'NOME': document.getElementById('nomePaciente').value,
-                    'IDADE': document.getElementById('idadePaciente').value,
-                    'PESO': document.getElementById('pesoPaciente').value,
-                    'ALTURA': document.getElementById('alturaPaciente').value,
-                    'CNS': document.getElementById('cnsPaciente').value,
-                    'MAE': document.getElementById('maePaciente').value,
-                    'MEDICO': document.getElementById('nomeMedico').value,
-                    'CRM': document.getElementById('crmMedico').value,
-                    'CNSM': document.getElementById('cnsMedico').value,
-                    'DATA': document.getElementById('dataDocumento').value
-                };
+        // 1. Dados Fixos do Cabeçalho comuns a todas as LMEs
+        const camposMap = {
+            'NOME': document.getElementById('nomePaciente').value,
+            'IDADE': document.getElementById('idadePaciente').value,
+            'PESO': document.getElementById('pesoPaciente').value,
+            'ALTURA': document.getElementById('alturaPaciente').value,
+            'CNS': document.getElementById('cnsPaciente').value,
+            'MAE': document.getElementById('maePaciente').value,
+            'MEDICO': document.getElementById('nomeMedico').value,
+            'CRM': document.getElementById('crmMedico').value,
+            'CNSM': document.getElementById('cnsMedico').value,
+            'DATA': document.getElementById('dataDocumento').value
+        };
 
-                // 2. Condicional: Coleta os dados baseado em qual aba gerou a requisição
-                if (isCombo) {
-                    camposMap['DAPAICFER'] = document.getElementById('justificativaDapaCombo').value;
-                    camposMap['PA'] = document.getElementById('paCombo').value;
-                    camposMap['FE'] = document.getElementById('feCombo').value;
-                    camposMap['BNP'] = document.getElementById('bnpCombo').value;
-                    camposMap['NT'] = document.getElementById('ntCombo').value;
-                    camposMap['MUC'] = document.getElementById('mucCombo').value;
-                } else {
-                    camposMap['DAPAICFER'] = document.getElementById('justificativaDapa').value;
-                    camposMap['PA'] = document.getElementById('paEntresto').value;
-                    camposMap['FE'] = document.getElementById('feEntresto').value;
-                    camposMap['BNP'] = document.getElementById('bnpEntresto').value;
-                    camposMap['NT'] = document.getElementById('ntEntresto').value;
-                    camposMap['MUC'] = document.getElementById('mucEntresto').value;
-                }
-
-                // 3. Injetar o texto bruto sem redefinir ou chutar estilos programaticamente
-                for (const [nomeCampoPdf, valor] of Object.entries(camposMap)) {
-                    try {
-                        const campo = form.getTextField(nomeCampoPdf);
-                        campo.setText(valor);
-                    } catch (err) {}
-                }
-
-                // Tratar caixa de combinação (Dropdown) do Entresto
-                if (valorEntrestoDropdown) {
-                    try {
-                        const dropdown = form.getDropdown('ENTRESTO');
-                        dropdown.select(valorEntrestoDropdown);
-                    } catch (err) {}
-                }
-
-                // 4. Força o leitor a usar estritamente as propriedades, fontes e tamanhos originais configurados no PDF
-                const acroForm = pdfDoc.catalog.get(PDFLib.Name.of('AcroForm'));
-                if (acroForm instanceof PDFLib.PDFDict) {
-                    acroForm.set(PDFLib.Name.of('NeedAppearances'), PDFLib.PDFBool.True);
-                }
-
-                // O método form.flatten() foi propositalmente retirado para não conflitar com as fontes nativas
-                const pdfModificadoBytes = await pdfDoc.save();
-                const blob = new Blob([pdfModificadoBytes], { type: 'application/pdf' });
-                const blobUrl = URL.createObjectURL(blob);
-                
-                const novaAba = window.open(blobUrl, '_blank');
-                if (novaAba) {
-                    novaAba.focus();
-                } else {
-                    alert("Por favor, permita pop-ups para abrir o PDF gerado.");
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert(`Erro ao processar o formulário LME: ${error.message}`);
-            }
+        // 2. Condicional: Coleta os dados baseado em qual aba gerou a requisição
+        if (isCombo) {
+            camposMap['DAPAICFER'] = document.getElementById('justificativaDapaCombo').value;
+            camposMap['PA'] = document.getElementById('paCombo').value;
+            camposMap['FE'] = document.getElementById('feCombo').value;
+            camposMap['BNP'] = document.getElementById('bnpCombo').value;
+            camposMap['NT'] = document.getElementById('ntCombo').value;
+            camposMap['MUC'] = document.getElementById('mucCombo').value;
+        } else {
+            camposMap['DAPAICFER'] = document.getElementById('justificativaDapa').value;
+            camposMap['PA'] = document.getElementById('paEntresto').value;
+            camposMap['FE'] = document.getElementById('feEntresto').value;
+            camposMap['BNP'] = document.getElementById('bnpEntresto').value;
+            camposMap['NT'] = document.getElementById('ntEntresto').value;
+            camposMap['MUC'] = document.getElementById('mucEntresto').value;
         }
+
+        // 3. Injetar o texto bruto
+        for (const [nomeCampoPdf, valor] of Object.entries(camposMap)) {
+            try {
+                const campo = form.getTextField(nomeCampoPdf);
+                campo.setText(valor);
+            } catch (err) {}
+        }
+
+        // Tratar caixa de combinação (Dropdown) do Entresto
+        if (valorEntrestoDropdown) {
+            try {
+                const dropdown = form.getDropdown('ENTRESTO');
+                dropdown.select(valorEntrestoDropdown);
+            } catch (err) {}
+        }
+
+        // 4. CORREÇÃO DO ERRO: Ativa o NeedAppearances de forma direta e compatível com a versão unpkg
+        try {
+            const acroForm = pdfDoc.catalog.get(PDFLib.Name ? PDFLib.Name.of('AcroForm') : PDFLib.Name);
+            // Se o mapeamento direto falhar, usamos a propriedade nativa do form acroForm nativo do documento:
+            pdfDoc.catalog.getOrCreateAcroForm().set(
+                PDFLib.Name ? PDFLib.Name.of('NeedAppearances') : 'NeedAppearances', 
+                PDFLib.PDFBool ? PDFLib.PDFBool.True : true
+            );
+        } catch (e) {
+            console.warn("Aviso ao ativar propriedades nativas de aparência:", e);
+        }
+
+        const pdfModificadoBytes = await pdfDoc.save();
+        const blob = new Blob([pdfModificadoBytes], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        
+        const novaAba = window.open(blobUrl, '_blank');
+        if (novaAba) {
+            novaAba.focus();
+        } else {
+            alert("Por favor, permita pop-ups para abrir o PDF gerado.");
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert(`Erro ao processar o formulário LME: ${error.message}`);
+    }
+}
 
         // Máscara de barras automáticas para o campo de data
         document.getElementById('dataDocumento').addEventListener('input', function (e) {
