@@ -520,9 +520,6 @@
                     'MUC': document.getElementById('mucEntresto').value
                 };
 
-				// Dssa linha transforma os campos azuis editáveis em texto fixo, sumindo com os fantasmas duplicados
-                form.flatten();
-
                 // Injetar valores nos TextFields
                 for (const [nomeCampoPdf, valor] of Object.entries(camposMap)) {
                     try {
@@ -532,7 +529,7 @@
                         console.warn(`Campo de texto "${nomeCampoPdf}" não processado para este PDF.`);
                     }
                 }
-
+				
                 // Tratar caixa de combinação (Dropdown) específica do Entresto, se aplicável
                 if (valorEntrestoDropdown) {
                     try {
@@ -542,6 +539,9 @@
                         console.warn('Não foi possível selecionar o valor na caixa de combinação "ENTRESTO".');
                     }
                 }
+
+			    //Essa linha transforma os campos azuis editáveis em texto fixo, sumindo com os fantasmas duplicados
+                form.flatten();
 
                 const pdfModificadoBytes = await pdfDoc.save();
                 const blob = new Blob([pdfModificadoBytes], { type: 'application/pdf' });
