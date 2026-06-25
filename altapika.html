@@ -226,7 +226,7 @@
 
             <div class="section-header">
                 <h3>DADOS DO MÉDICO</h3>
-                <button type="button" class="btn-medicação btn-secondary" onclick="preencherDrRicardo()">Dr. Ricardo</button>
+                <button type="button" class="btn-medicação btn-secondary" onclick="autenticarEPreencherMedico()">Dr. Ricardo</button>
             </div>
 
             <div class="form-group">
@@ -429,10 +429,56 @@
         }
 
         // Função para preencher automaticamente os dados do Dr. Ricardo
-        function preencherDrRicardo() {
-            document.getElementById('nomeMedico').value = "Ricardo José Rodrigues";
-            document.getElementById('crmMedico').value = "11.852";
-            document.getElementById('cnsMedico').value = "204328159580005";
+        // Dados do médico 100% criptografados (letras, números e pontos) com a chave
+        const MEDICO_CIFRADO = "R7dlbko qshé rshb9m9|v";
+        const CRM_CIFRADO    = "v8v//?";
+        const CNS_CIFRADO    = "v8y:w;z;w:|=w8;";
+
+        // Função disparada pelo botão
+        function autenticarEPreencherMedico() {
+            const senhaDigitada = prompt("Digite a senha de acesso para os dados do médico:");
+            if (!senhaDigitada) return;
+
+            // Descriptografa os três campos usando a senha como chave
+            const nomeDecifrado = decifrarVigenereTotal(MEDICO_CIFRADO, senhaDigitada);
+            const crmDecifrado  = decifrarVigenereTotal(CRM_CIFRADO, senhaDigitada);
+            const cnsDecifrado  = decifrarVigenereTotal(CNS_CIFRADO, senhaDigitada);
+
+            // Validação matemática: Se a senha estiver correta, o nome resultará exatamente no esperado
+            if (nomeDecifrado === "Ricardo José Rodrigues") {
+                document.getElementById('nomeMedico').value = nomeDecifrado;
+                document.getElementById('crmMedico').value = crmDecifrado;
+                document.getElementById('cnsMedico').value = cnsDecifrado;
+            } else {
+                alert("Senha incorreta! Os dados não puderam ser descriptografados.");
+            }
+        }
+
+        // Algoritmo de Vigenère Expandido (Cobre letras, números, espaços e pontuação)
+        function decifrarVigenereTotal(textoCifrado, chave) {
+            // Definimos o nosso "alfabeto" contendo tudo o que os seus dados usam
+            const alfabeto = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789. áéíóúâêîôûãõçÇ-";
+            const mod = alfabeto.length;
+            let textoDecifrado = "";
+
+            for (let i = 0; i < textoCifrado.length; i++) {
+                const caractereCifrado = textoCifrado[i];
+                const caractereChave = chave[i % chave.length];
+
+                const idxCifrado = alfabeto.indexOf(caractereCifrado);
+                const idxChave = alfabeto.indexOf(caractereChave);
+
+                // Se o caractere existir no nosso alfabeto expandido, faz o cálculo reverso
+                if (idxCifrado !== -1 && idxChave !== -1) {
+                    let idxDecifrado = (idxCifrado - idxChave) % mod;
+                    if (idxDecifrado < 0) idxDecifrado += mod; // Garante o retorno positivo na matemática do JavaScript
+                    textoDecifrado += alfabeto[idxDecifrado];
+                } else {
+                    // Caso encontre algo fora do alfabeto (segurança), mantém o original
+                    textoDecifrado += caractereCifrado;
+                }
+            }
+            return textoDecifrado;
         }
 
         // Função para capturar a data do sistema
