@@ -444,16 +444,6 @@
             const crmDecifrado  = decifrarVigenereTotal(CRM_CIFRADO, senhaDigitada);
             const cnsDecifrado  = decifrarVigenereTotal(CNS_CIFRADO, senhaDigitada);
 
-            // Validação matemática: Se a senha estiver correta, o nome resultará exatamente no esperado
-            if (nomeDecifrado === "Ricardo José Rodrigues") {
-                document.getElementById('nomeMedico').value = nomeDecifrado;
-                document.getElementById('crmMedico').value = crmDecifrado;
-                document.getElementById('cnsMedico').value = cnsDecifrado;
-            } else {
-                alert("Senha incorreta! Os dados não puderam ser descriptografados.");
-            }
-        }
-
         // Algoritmo de Vigenère Expandido (Cobre letras, números, espaços e pontuação)
         function decifrarVigenereTotal(textoCifrado, chave) {
             // Definimos o nosso "alfabeto" contendo tudo o que os seus dados usam
